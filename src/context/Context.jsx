@@ -3,7 +3,17 @@ import { useContext, useState, useEffect, createContext } from "react";
 const AppContext = createContext();
 
 const Context = ({ children }) => {
-  return <AppContext.Provider value={"hello"}>{children}</AppContext.Provider>;
+  const handleSubmit = e => {
+    e.preventDefault();
+    console.log("hi");
+    // return {};
+  };
+
+  return (
+    <AppContext.Provider value={{ handleSubmit }}>
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 const useGlobalContext = () => {
