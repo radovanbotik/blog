@@ -15,7 +15,7 @@ const Context = ({ children }) => {
   });
 
   //Login State
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   //Input Change
   const handleChange = e => {
@@ -31,7 +31,7 @@ const Context = ({ children }) => {
     e.preventDefault();
   };
 
-  //Authentification
+  //Login + Authentification
   const handleLogin = () => {
     signInWithPopup(auth, provider)
       .then(result => {
@@ -57,6 +57,11 @@ const Context = ({ children }) => {
         // ...
       });
   };
+  //LogOut
+  const handleLogOut = () => {
+    setIsLoggedIn(false);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -65,6 +70,7 @@ const Context = ({ children }) => {
         handleLogin,
         isLoggedIn,
         setIsLoggedIn,
+        handleLogOut,
       }}
     >
       {children}
