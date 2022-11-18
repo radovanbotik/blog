@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect, createContext } from "react";
 import { app, db, auth, provider } from "../firebase/firebase-cfg";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 const AppContext = createContext();
@@ -15,7 +15,7 @@ const Context = ({ children }) => {
   });
 
   //Login State
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   //Input Change
   const handleChange = e => {
@@ -51,7 +51,6 @@ const Context = ({ children }) => {
         // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        // The email of the user's account used.
         // The AuthCredential type that was used.
         const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
@@ -59,7 +58,11 @@ const Context = ({ children }) => {
   };
   //LogOut
   const handleLogOut = () => {
-    setIsLoggedIn(false);
+    signOut(auth).then(() => {
+      setIsLoggedIn(false);
+      localStorage.clear();
+      navigate("/login");
+    });
   };
 
   return (
