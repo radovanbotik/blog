@@ -1,9 +1,17 @@
 import { useContext, useState, useEffect, createContext } from "react";
-import { app, db, auth, provider } from "../firebase/firebase-cfg";
+import {
+  db,
+  auth,
+  provider,
+  addDoc,
+  getDocs,
+  collection,
+} from "../firebase/firebase-cfg";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 const AppContext = createContext();
+const posts = collection(db, "posts");
 
 const Context = ({ children }) => {
   //Redirect to homepage
@@ -13,10 +21,11 @@ const Context = ({ children }) => {
     title: "",
     body: "",
   });
-
-  //Login State
+  //Posts in databse
+  const [database, setDatabase] = useState([]);
+  //Login State + user Info
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [user, setUser] = useState({});
   //Input Change
   const handleChange = e => {
     const element = e.target.name;
@@ -26,32 +35,32 @@ const Context = ({ children }) => {
     });
   };
 
-  //Submit Confirmation
+  //Data Exchange
+
+  const sendData = async () => {
+    await addDoc(posts, { message, user });
+    navigate("/");
+  };
+  //SEND DATA
   const handleSubmit = e => {
     e.preventDefault();
+    sendData();
   };
-
   //Login + Authentification
   const handleLogin = () => {
     signInWithPopup(auth, provider)
       .then(result => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
         const credential = GoogleAuthProvider.credentialFromResult(result);
-        console.log({ credential });
         const token = credential.accessToken;
-        console.log({ token });
-        // The signed-in user info.
         const user = result.user;
-        console.log({ user });
         setIsLoggedIn(true);
+        setUser({ name: user.displayName, id: user.uid });
         localStorage.setItem("isLoggedIn", "true");
         navigate("/");
       })
       .catch(error => {
-        // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        // The AuthCredential type that was used.
         const credential = GoogleAuthProvider.credentialFromError(error);
         // ...
       });
@@ -65,6 +74,20 @@ const Context = ({ children }) => {
     });
   };
 
+  // //Fetch data from Firebase
+  const fetchData = async () => {
+    const data = await getDocs(posts);
+    if (data) {
+      setDatabase(data.docs);
+    }
+  };
+  //redirect to login right after render
+  useEffect(() => {
+    if (!isLoggedIn) navigate("/login");
+  }, []);
+  useEffect(() => {
+    fetchData();
+  }, []);
   return (
     <AppContext.Provider
       value={{
@@ -74,6 +97,7 @@ const Context = ({ children }) => {
         isLoggedIn,
         setIsLoggedIn,
         handleLogOut,
+        database,
       }}
     >
       {children}
