@@ -82,12 +82,12 @@ const Context = ({ children }) => {
     }
   };
   //redirect to login right after render
-  useEffect(() => {
-    if (!isLoggedIn) navigate("/login");
-  }, []);
+  // useEffect(() => {
+  //   if (!isLoggedIn) navigate("/login");
+  // }, []);
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [database]);
   return (
     <AppContext.Provider
       value={{
